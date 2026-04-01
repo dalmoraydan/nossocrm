@@ -54,7 +54,7 @@ export async function GET(req: Request) {
       let q = supabase
         .from('contacts')
         .select(
-          'id,name,email,phone,role,notes,status,stage,created_at,updated_at,client_company_id,last_purchase_date'
+          'id,name,email,phone,treatment_interest,first_time,previous_procedure,lead_origin,conversation_summary,observations,notes,status,stage,created_at,updated_at,client_company_id,last_purchase_date'
         )
         .is('deleted_at', null);
 
@@ -120,8 +120,12 @@ export async function GET(req: Request) {
       'name',
       'email',
       'phone',
-      'role',
-      'company',
+      'treatment_interest',
+      'first_time',
+      'previous_procedure',
+      'lead_origin',
+      'conversation_summary',
+      'observations',
       'status',
       'stage',
       'notes',
@@ -133,8 +137,12 @@ export async function GET(req: Request) {
       c.name || '',
       c.email || '',
       c.phone || '',
-      c.role || '',
-      companyNameById.get(c.client_company_id) || '',
+      c.treatment_interest || '',
+      c.first_time ? 'true' : 'false',
+      c.previous_procedure ? 'true' : 'false',
+      c.lead_origin || '',
+      c.conversation_summary || '',
+      c.observations || '',
       c.status || '',
       c.stage || '',
       c.notes || '',

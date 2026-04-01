@@ -12,9 +12,6 @@ const ContactUpsertSchema = z.object({
   name: z.string().optional(),
   email: z.string().optional(),
   phone: z.string().optional(),
-  role: z.string().optional(),
-  company_name: z.string().optional(),
-  client_company_id: z.string().uuid().optional(),
   avatar: z.string().optional(),
   status: z.string().optional(),
   stage: z.string().optional(),
@@ -24,6 +21,12 @@ const ContactUpsertSchema = z.object({
   total_value: z.number().optional(),
   source: z.string().optional(),
   notes: z.string().optional(),
+  treatment_interest: z.string().optional(),
+  first_time: z.boolean().optional(),
+  previous_procedure: z.boolean().optional(),
+  lead_origin: z.string().optional(),
+  conversation_summary: z.string().optional(),
+  observations: z.string().optional(),
 }).strict();
 
 function toIsoDateString(v: string | undefined) {
@@ -84,7 +87,7 @@ export async function GET(request: Request) {
   const sb = createStaticAdminClient();
   let query = sb
     .from('contacts')
-    .select('id,name,email,phone,role,company_name,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,created_at,updated_at', { count: 'exact' })
+    .select('id,name,email,phone,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,treatment_interest,first_time,previous_procedure,lead_origin,conversation_summary,observations,created_at,updated_at', { count: 'exact' })
     .eq('organization_id', auth.organizationId)
     .is('deleted_at', null)
     .order('created_at', { ascending: false });
@@ -111,14 +114,18 @@ export async function GET(request: Request) {
       name: c.name,
       email: c.email ?? null,
       phone: c.phone ?? null,
-      role: c.role ?? null,
-      company_name: c.company_name ?? null,
       client_company_id: c.client_company_id ?? null,
       avatar: c.avatar ?? null,
       status: c.status ?? null,
       stage: c.stage ?? null,
       source: c.source ?? null,
       notes: c.notes ?? null,
+      treatment_interest: c.treatment_interest ?? null,
+      first_time: c.first_time ?? false,
+      previous_procedure: c.previous_procedure ?? false,
+      lead_origin: c.lead_origin ?? null,
+      conversation_summary: c.conversation_summary ?? null,
+      observations: c.observations ?? null,
       birth_date: c.birth_date ?? null,
       last_interaction: c.last_interaction ?? null,
       last_purchase_date: c.last_purchase_date ?? null,
@@ -126,6 +133,7 @@ export async function GET(request: Request) {
       created_at: c.created_at,
       updated_at: c.updated_at,
     })),
+
     nextCursor,
   });
 }
@@ -185,14 +193,18 @@ export async function POST(request: Request) {
     organization_id: auth.organizationId,
     email,
     phone,
-    role: normalizeText(parsed.data.role),
-    company_name: companyName,
     client_company_id: clientCompanyId,
     avatar: normalizeText(parsed.data.avatar),
     status: normalizeText(parsed.data.status),
     stage: normalizeText(parsed.data.stage),
     source: normalizeText(parsed.data.source),
     notes: normalizeText(parsed.data.notes),
+    treatment_interest: normalizeText(parsed.data.treatment_interest),
+    first_time: parsed.data.first_time,
+    previous_procedure: parsed.data.previous_procedure,
+    lead_origin: normalizeText(parsed.data.lead_origin),
+    conversation_summary: normalizeText(parsed.data.conversation_summary),
+    observations: normalizeText(parsed.data.observations),
     birth_date: birthDate,
     last_interaction: lastInteraction,
     last_purchase_date: lastPurchaseDate,
@@ -206,7 +218,7 @@ export async function POST(request: Request) {
       .from('contacts')
       .update(payload)
       .eq('id', existing.data.id)
-      .select('id,name,email,phone,role,company_name,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,created_at,updated_at')
+      .select('id,name,email,phone,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,treatment_interest,first_time,previous_procedure,lead_origin,conversation_summary,observations,created_at,updated_at')
       .single();
     if (error) return NextResponse.json({ error: error.message, code: 'DB_ERROR' }, { status: 500 });
     return NextResponse.json({ data: data, action: 'updated' });
@@ -227,7 +239,7 @@ export async function POST(request: Request) {
   const { data, error } = await sb
     .from('contacts')
     .insert(insertPayload)
-    .select('id,name,email,phone,role,company_name,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,created_at,updated_at')
+    .select('id,name,email,phone,client_company_id,avatar,notes,status,stage,source,birth_date,last_interaction,last_purchase_date,total_value,treatment_interest,first_time,previous_procedure,lead_origin,conversation_summary,observations,created_at,updated_at')
     .single();
   if (error) return NextResponse.json({ error: error.message, code: 'DB_ERROR' }, { status: 500 });
   return NextResponse.json({ data, action: 'created' }, { status: 201 });

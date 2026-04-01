@@ -46,6 +46,9 @@ type DbProduct = {
   price: number;
   sku: string | null;
   active: boolean | null;
+  base_price: number | null;
+  procedure_duration_minutes: number | null;
+  effect_duration_months: number | null;
   created_at: string;
   updated_at: string;
   owner_id: string | null;
@@ -60,6 +63,9 @@ function transformProduct(db: DbProduct): Product {
     price: Number(db.price ?? 0),
     sku: db.sku || undefined,
     active: db.active ?? true,
+    basePrice: db.base_price ?? undefined,
+    procedureDurationMinutes: db.procedure_duration_minutes ?? undefined,
+    effectDurationMonths: db.effect_duration_months ?? undefined,
   };
 }
 
@@ -70,7 +76,7 @@ export const productsService = {
 
       const { data, error } = await supabase
         .from('products')
-        .select('id, organization_id, name, description, price, sku, active, created_at, updated_at, owner_id')
+        .select('id, organization_id, name, description, price, sku, active, base_price, procedure_duration_minutes, effect_duration_months, created_at, updated_at, owner_id')
         .order('created_at', { ascending: false });
 
       if (error) return { data: [], error };
@@ -89,7 +95,7 @@ export const productsService = {
 
       const { data, error } = await supabase
         .from('products')
-        .select('id, organization_id, name, description, price, sku, active, created_at, updated_at, owner_id')
+        .select('id, organization_id, name, description, price, sku, active, base_price, procedure_duration_minutes, effect_duration_months, created_at, updated_at, owner_id')
         .eq('active', true)
         .order('created_at', { ascending: false });
 
@@ -102,7 +108,7 @@ export const productsService = {
     }
   },
 
-  async create(input: { name: string; price: number; sku?: string; description?: string }): Promise<{ data: Product | null; error: Error | null }> {
+  async create(input: { name: string; price: number; sku?: string; description?: string; basePrice?: number; procedureDurationMinutes?: number; effectDurationMonths?: number }): Promise<{ data: Product | null; error: Error | null }> {
     try {
       if (!supabase) return { data: null, error: new Error('Supabase não configurado') };
 
@@ -117,10 +123,13 @@ export const productsService = {
           sku: input.sku || null,
           description: input.description || null,
           active: true,
+          base_price: input.basePrice ?? input.price,
+          procedure_duration_minutes: input.procedureDurationMinutes ?? 60,
+          effect_duration_months: input.effectDurationMonths ?? 6,
           owner_id: sanitizeUUID(user?.id),
           organization_id: organizationId,
         })
-        .select('id, organization_id, name, description, price, sku, active, created_at, updated_at, owner_id')
+        .select('id, organization_id, name, description, price, sku, active, base_price, procedure_duration_minutes, effect_duration_months, created_at, updated_at, owner_id')
         .single();
 
       if (error) return { data: null, error };
@@ -130,7 +139,7 @@ export const productsService = {
     }
   },
 
-  async update(id: string, updates: Partial<{ name: string; price: number; sku?: string; description?: string; active: boolean }>): Promise<{ error: Error | null }> {
+  async update(id: string, updates: Partial<{ name: string; price: number; sku?: string; description?: string; active: boolean; basePrice?: number; procedureDurationMinutes?: number; effectDurationMonths?: number }>): Promise<{ error: Error | null }> {
     try {
       if (!supabase) return { error: new Error('Supabase não configurado') };
 
@@ -140,6 +149,9 @@ export const productsService = {
       if (updates.sku !== undefined) payload.sku = updates.sku || null;
       if (updates.description !== undefined) payload.description = updates.description || null;
       if (updates.active !== undefined) payload.active = updates.active;
+      if (updates.basePrice !== undefined) payload.base_price = updates.basePrice;
+      if (updates.procedureDurationMinutes !== undefined) payload.procedure_duration_minutes = updates.procedureDurationMinutes;
+      if (updates.effectDurationMonths !== undefined) payload.effect_duration_months = updates.effectDurationMonths;
       payload.updated_at = new Date().toISOString();
 
       const { error } = await supabase

@@ -159,7 +159,12 @@ export const useContactsController = () => {
     name: '',
     email: '',
     phone: '',
-    role: '',
+    treatmentInterest: '',
+    firstTime: false,
+    previousProcedure: false,
+    leadOrigin: '',
+    conversationSummary: '',
+    observations: '',
     companyName: '',
   });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
@@ -177,7 +182,18 @@ export const useContactsController = () => {
       return;
     }
     setEditingContact(null);
-    setFormData({ name: '', email: '', phone: '', role: '', companyName: '' });
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      treatmentInterest: '',
+      firstTime: false,
+      previousProcedure: false,
+      leadOrigin: '',
+      conversationSummary: '',
+      observations: '',
+      companyName: '',
+    });
     setIsModalOpen(true);
   };
 
@@ -188,7 +204,12 @@ export const useContactsController = () => {
       name: contact.name,
       email: contact.email,
       phone: contact.phone,
-      role: contact.role || '',
+      treatmentInterest: contact.treatmentInterest || '',
+      firstTime: contact.firstTime ?? false,
+      previousProcedure: contact.previousProcedure ?? false,
+      leadOrigin: contact.leadOrigin || '',
+      conversationSummary: contact.conversationSummary || '',
+      observations: contact.observations || '',
       companyName: company?.name || '',
     });
     setIsModalOpen(true);
@@ -418,7 +439,12 @@ export const useContactsController = () => {
             name: formData.name,
             email: formData.email,
             phone: normalizedPhone,
-            role: formData.role,
+            treatmentInterest: formData.treatmentInterest || null,
+            firstTime: formData.firstTime,
+            previousProcedure: formData.previousProcedure,
+            leadOrigin: formData.leadOrigin || null,
+            conversationSummary: formData.conversationSummary || null,
+            observations: formData.observations || null,
             companyId: companyId,
           },
         },
@@ -436,7 +462,12 @@ export const useContactsController = () => {
           name: formData.name,
           email: formData.email,
           phone: normalizedPhone,
-          role: formData.role,
+          treatmentInterest: formData.treatmentInterest || null,
+          firstTime: formData.firstTime,
+          previousProcedure: formData.previousProcedure,
+          leadOrigin: formData.leadOrigin || null,
+          conversationSummary: formData.conversationSummary || null,
+          observations: formData.observations || null,
           companyId: companyId || '',
           status: 'ACTIVE',
           stage: ContactStage.LEAD,

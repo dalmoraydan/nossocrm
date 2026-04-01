@@ -24,14 +24,25 @@ export const ProductsCatalogManager: React.FC = () => {
   const [price, setPrice] = useState<string>('0');
   const [sku, setSku] = useState('');
   const [description, setDescription] = useState('');
+  const [basePrice, setBasePrice] = useState<string>('0');
+  const [procedureDuration, setProcedureDuration] = useState<string>('60');
+  const [effectDuration, setEffectDuration] = useState<string>('6');
 
-  const canCreate = name.trim().length > 1 && Number.isFinite(Number(price));
+  const canCreate =
+    name.trim().length > 1 &&
+    Number.isFinite(Number(price)) &&
+    Number.isFinite(Number(basePrice)) &&
+    Number.isFinite(Number(procedureDuration)) &&
+    Number.isFinite(Number(effectDuration));
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editPrice, setEditPrice] = useState<string>('0');
   const [editSku, setEditSku] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editBasePrice, setEditBasePrice] = useState<string>('0');
+  const [editProcedureDuration, setEditProcedureDuration] = useState<string>('60');
+  const [editEffectDuration, setEditEffectDuration] = useState<string>('6');
 
   const load = async () => {
     setLoading(true);
@@ -73,6 +84,9 @@ export const ProductsCatalogManager: React.FC = () => {
       price: Number(price),
       sku: sku.trim() || undefined,
       description: description.trim() || undefined,
+      basePrice: Number(basePrice),
+      procedureDurationMinutes: Number(procedureDuration),
+      effectDurationMonths: Number(effectDuration),
     });
     if (res.error) {
       setError(res.error.message);
@@ -83,6 +97,9 @@ export const ProductsCatalogManager: React.FC = () => {
     setPrice('0');
     setSku('');
     setDescription('');
+    setBasePrice('0');
+    setProcedureDuration('60');
+    setEffectDuration('6');
     await load();
     // Notify app to refresh dropdowns that read from SettingsContext
     if (typeof window !== 'undefined') window.dispatchEvent(new Event('crm:products-updated'));
@@ -107,6 +124,9 @@ export const ProductsCatalogManager: React.FC = () => {
     setEditPrice(String(p.price ?? 0));
     setEditSku(p.sku || '');
     setEditDescription(p.description || '');
+    setEditBasePrice(String(p.basePrice ?? p.price ?? 0));
+    setEditProcedureDuration(String(p.procedureDurationMinutes ?? 60));
+    setEditEffectDuration(String(p.effectDurationMonths ?? 6));
   };
 
   const cancelEdit = () => {
@@ -115,6 +135,9 @@ export const ProductsCatalogManager: React.FC = () => {
     setEditPrice('0');
     setEditSku('');
     setEditDescription('');
+    setEditBasePrice('0');
+    setEditProcedureDuration('60');
+    setEditEffectDuration('6');
   };
 
   const saveEdit = async () => {
@@ -131,6 +154,23 @@ export const ProductsCatalogManager: React.FC = () => {
       return;
     }
 
+    const basePrice = Number(editBasePrice);
+    const procedureDuration = Number(editProcedureDuration);
+    const effectDuration = Number(editEffectDuration);
+
+    if (!Number.isFinite(basePrice) || basePrice < 0) {
+      setError('Preço base inválido.');
+      return;
+    }
+    if (!Number.isFinite(procedureDuration) || procedureDuration <= 0) {
+      setError('Duração do procedimento inválida.');
+      return;
+    }
+    if (!Number.isFinite(effectDuration) || effectDuration <= 0) {
+      setError('Duração do efeito inválida.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     const res = await productsService.update(editingId, {
@@ -138,6 +178,9 @@ export const ProductsCatalogManager: React.FC = () => {
       price,
       sku: editSku.trim() || undefined,
       description: editDescription.trim() || undefined,
+      basePrice: Number(editBasePrice),
+      procedureDurationMinutes: Number(editProcedureDuration),
+      effectDurationMonths: Number(editEffectDuration),
     });
     if (res.error) {
       setError(res.error.message);
@@ -213,6 +256,33 @@ export const ProductsCatalogManager: React.FC = () => {
               className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
             />
           </div>
+          <div className="lg:col-span-2">
+            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Preço base</label>
+            <input
+              value={basePrice}
+              onChange={(e) => setBasePrice(e.target.value)}
+              inputMode="decimal"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Duração (min)</label>
+            <input
+              value={procedureDuration}
+              onChange={(e) => setProcedureDuration(e.target.value)}
+              inputMode="numeric"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Duração do efeito (meses)</label>
+            <input
+              value={effectDuration}
+              onChange={(e) => setEffectDuration(e.target.value)}
+              inputMode="numeric"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+            />
+          </div>
           <div className="lg:col-span-3">
             <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Descrição (opcional)</label>
             <input
@@ -255,7 +325,7 @@ export const ProductsCatalogManager: React.FC = () => {
                     <div className="min-w-0">
                       {isEditing ? (
                         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                          <div className="sm:col-span-5">
+                          <div className="sm:col-span-4">
                             <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nome</label>
                             <input
                               value={editName}
@@ -273,10 +343,29 @@ export const ProductsCatalogManager: React.FC = () => {
                             />
                           </div>
                           <div className="sm:col-span-2">
-                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">SKU</label>
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Preço base</label>
                             <input
-                              value={editSku}
-                              onChange={(e) => setEditSku(e.target.value)}
+                              value={editBasePrice}
+                              onChange={(e) => setEditBasePrice(e.target.value)}
+                              inputMode="decimal"
+                              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Duração (min)</label>
+                            <input
+                              value={editProcedureDuration}
+                              onChange={(e) => setEditProcedureDuration(e.target.value)}
+                              inputMode="numeric"
+                              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Efeito (meses)</label>
+                            <input
+                              value={editEffectDuration}
+                              onChange={(e) => setEditEffectDuration(e.target.value)}
+                              inputMode="numeric"
                               className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-black/20 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40"
                             />
                           </div>
@@ -300,7 +389,7 @@ export const ProductsCatalogManager: React.FC = () => {
                             )}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                            {formatBRL(p.price)}{p.sku ? ` • SKU: ${p.sku}` : ''}{p.description ? ` • ${p.description}` : ''}
+                            {formatBRL(p.price)}{p.basePrice !== undefined ? ` • Base: ${formatBRL(p.basePrice)}` : ''}{p.procedureDurationMinutes !== undefined ? ` • ${p.procedureDurationMinutes} min` : ''}{p.effectDurationMonths !== undefined ? ` • ${p.effectDurationMonths} meses` : ''}{p.sku ? ` • SKU: ${p.sku}` : ''}{p.description ? ` • ${p.description}` : ''}
                           </div>
                         </>
                       )}

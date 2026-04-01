@@ -49,6 +49,12 @@ export const ContactFormModalV2: React.FC<ContactFormModalProps> = ({
       name: editingContact?.name || '',
       email: editingContact?.email || '',
       phone: editingContact?.phone || '',
+      treatmentInterest: editingContact?.treatmentInterest || '',
+      firstTime: editingContact?.firstTime ?? false,
+      previousProcedure: editingContact?.previousProcedure ?? false,
+      leadOrigin: editingContact?.leadOrigin || '',
+      conversationSummary: editingContact?.conversationSummary || '',
+      observations: editingContact?.observations || '',
       role: editingContact?.role || '',
       companyName: defaultCompanyName,
     },
@@ -68,6 +74,12 @@ export const ContactFormModalV2: React.FC<ContactFormModalProps> = ({
         name: editingContact?.name || '',
         email: editingContact?.email || '',
         phone: editingContact?.phone || '',
+        treatmentInterest: editingContact?.treatmentInterest || '',
+        firstTime: editingContact?.firstTime ?? false,
+        previousProcedure: editingContact?.previousProcedure ?? false,
+        leadOrigin: editingContact?.leadOrigin || '',
+        conversationSummary: editingContact?.conversationSummary || '',
+        observations: editingContact?.observations || '',
         role: editingContact?.role || '',
         companyName: defaultCompanyName,
       });
@@ -111,25 +123,56 @@ export const ContactFormModalV2: React.FC<ContactFormModalProps> = ({
             error={errors.phone}
             registration={register('phone')}
           />
-          <InputField
-            label="Cargo"
-            placeholder="Gerente"
-            error={errors.role}
-            registration={register('role')}
-          />
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Tratamento de Interesse</label>
+            <select
+              className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+              {...register('treatmentInterest')}
+            >
+              <option value="">Selecione</option>
+              <option value="Botox">Botox</option>
+              <option value="Preenchimento labial">Preenchimento labial</option>
+              <option value="Bioestimulador">Bioestimulador</option>
+              <option value="Fios de sustentação">Fios de sustentação</option>
+              <option value="Skinbooster">Skinbooster</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <label className="text-sm flex items-center gap-2">
+            <input type="checkbox" {...register('firstTime')} />
+            Primeira vez
+          </label>
+          <label className="text-sm flex items-center gap-2">
+            <input type="checkbox" {...register('previousProcedure')} />
+            Já fez procedimento antes
+          </label>
         </div>
 
         <InputField
-          label="Empresa"
-          placeholder="Nome da Empresa"
-          hint={
-            editingContact
-              ? 'Edite para alterar a empresa. Deixe em branco para desvincular.'
-              : 'Se a empresa já existir, o contato será vinculado a ela.'
-          }
-          error={errors.companyName}
-          registration={register('companyName')}
+          label="Origem do lead"
+          placeholder="WhatsApp, Instagram, Indicação, Google, Outro"
+          error={errors.leadOrigin}
+          registration={register('leadOrigin')}
         />
+
+        <div>
+          <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Resumo da conversa</label>
+          <textarea
+            className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+            {...register('conversationSummary')}
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Observações</label>
+          <textarea
+            className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+            {...register('observations')}
+          />
+        </div>
 
         <SubmitButton isLoading={isSubmitting}>
           {editingContact ? 'Salvar Alterações' : 'Criar Contato'}

@@ -9,8 +9,12 @@ interface ContactFormData {
   name: string;
   email: string;
   phone: string;
-  role: string;
-  companyName: string;
+  treatmentInterest: string;
+  firstTime: boolean;
+  previousProcedure: boolean;
+  leadOrigin: string;
+  conversationSummary: string;
+  observations: string;
 }
 
 interface ContactFormModalProps {
@@ -66,8 +70,12 @@ export const ContactFormModal: React.FC<ContactFormModalProps> = ({
       name: fake.name,
       email: fake.email,
       phone: fake.phone,
-      role: fake.role,
-      companyName: fake.companyName,
+      treatmentInterest: '',
+      firstTime: false,
+      previousProcedure: false,
+      leadOrigin: '',
+      conversationSummary: '',
+      observations: '',
     });
   };
 
@@ -141,48 +149,85 @@ export const ContactFormModal: React.FC<ContactFormModalProps> = ({
               onChange={e => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-                Telefone
-              </label>
-              <input
-                type="text"
-                className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="+5511999999999"
-                value={formData.phone}
-                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cargo</label>
-              <input
-                type="text"
-                className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="Gerente"
-                value={formData.role}
-                onChange={e => setFormData({ ...formData, role: e.target.value })}
-              />
-            </div>
-          </div>
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-              Empresa
+              Telefone
             </label>
             <input
               type="text"
               className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Nome da Empresa"
-              value={formData.companyName}
-              onChange={e => setFormData({ ...formData, companyName: e.target.value })}
+              placeholder="+5511999999999"
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
             />
-            <p className="text-[10px] text-slate-400 mt-1">
-              {editingContact
-                ? 'Edite para alterar a empresa. Deixe em branco para desvincular.'
-                : 'Se a empresa já existir, o contato será vinculado a ela.'}
-            </p>
           </div>
-
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+              Tratamento de Interesse
+            </label>
+            <select
+              className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+              value={formData.treatmentInterest}
+              onChange={e => setFormData({ ...formData, treatmentInterest: e.target.value })}
+            >
+              <option value="">Selecione</option>
+              <option value="Botox">Botox</option>
+              <option value="Preenchimento labial">Preenchimento labial</option>
+              <option value="Bioestimulador">Bioestimulador</option>
+              <option value="Fios de sustentação">Fios de sustentação</option>
+              <option value="Skinbooster">Skinbooster</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Primeira vez?</label>
+              <input
+                type="checkbox"
+                checked={formData.firstTime}
+                onChange={e => setFormData({ ...formData, firstTime: e.target.checked })}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Já fez procedimento antes?</label>
+              <input
+                type="checkbox"
+                checked={formData.previousProcedure}
+                onChange={e => setFormData({ ...formData, previousProcedure: e.target.checked })}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Origem do lead</label>
+            <select
+              className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+              value={formData.leadOrigin}
+              onChange={e => setFormData({ ...formData, leadOrigin: e.target.value })}
+            >
+              <option value="">Selecione</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Instagram">Instagram</option>
+              <option value="Indicação">Indicação</option>
+              <option value="Google">Google</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Resumo da conversa</label>
+            <textarea
+              className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+              value={formData.conversationSummary}
+              onChange={e => setFormData({ ...formData, conversationSummary: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Observações</label>
+            <textarea
+              className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-500"
+              value={formData.observations}
+              onChange={e => setFormData({ ...formData, observations: e.target.value })}
+            />
+          </div>
             <button
             type="submit"
               disabled={isSubmitting}

@@ -111,8 +111,15 @@ export const contactFormSchema = z.object({
   name: requiredString('Nome', MAX_LENGTHS.NAME),
   email: emailSchema,
   phone: phoneSchema,
-  role: optionalString.pipe(z.string().max(MAX_LENGTHS.SHORT_TEXT)),
-  companyName: optionalString.pipe(z.string().max(MAX_LENGTHS.COMPANY_NAME)),
+  treatmentInterest: optionalString.pipe(z.string().max(MAX_LENGTHS.SHORT_TEXT)).optional(),
+  firstTime: z.boolean().optional(),
+  previousProcedure: z.boolean().optional(),
+  leadOrigin: optionalString.pipe(z.string().max(MAX_LENGTHS.SHORT_TEXT)).optional(),
+  conversationSummary: optionalLongString.optional(),
+  observations: optionalLongString.optional(),
+  // legacy fields (for compatibility)
+  role: optionalString.pipe(z.string().max(MAX_LENGTHS.SHORT_TEXT)).optional(),
+  companyName: optionalString.pipe(z.string().max(MAX_LENGTHS.COMPANY_NAME)).optional(),
 });
 
 export type ContactFormData = z.infer<typeof contactFormSchema>;

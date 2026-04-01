@@ -45,13 +45,25 @@ export interface DbContact {
   client_company_id: string | null;
   /** URL do avatar. */
   avatar: string | null;
+  /** Tratamento de interesse. */
+  treatment_interest: string | null;
+  /** Primeira vez? */
+  first_time: boolean | null;
+  /** Já fez procedimentos antes? */
+  previous_procedure: boolean | null;
+  /** Origem do lead. */
+  lead_origin: string | null;
+  /** Resumo de conversa. */
+  conversation_summary: string | null;
+  /** Observações internas. */
+  observations: string | null;
   /** Observações sobre o contato. */
   notes: string | null;
   /** Status do contato (ACTIVE, INACTIVE). */
   status: string;
   /** Estágio no funil (LEAD, MQL, etc). */
   stage: string;
-  /** Fonte de origem do contato. */
+  /** Fonte de origem do contacto (legacy). */
   source: string | null;
   /** Data de aniversário. */
   birth_date: string | null;
@@ -105,20 +117,27 @@ const transformContact = (db: DbContact): Contact => ({
   name: db.name,
   email: db.email || '',
   phone: normalizePhoneE164(db.phone),
-  role: db.role || '',
   clientCompanyId: db.client_company_id || undefined,
-  companyId: db.client_company_id || '', // @deprecated - backwards compatibility
   avatar: db.avatar || '',
-  notes: db.notes || '',
+  treatmentInterest: db.treatment_interest ? (db.treatment_interest as Contact['treatmentInterest']) : undefined,
+  firstTime: db.first_time ?? false,
+  previousProcedure: db.previous_procedure ?? false,
+  leadOrigin: db.lead_origin ? (db.lead_origin as Contact['leadOrigin']) : undefined,
+  conversationSummary: db.conversation_summary || undefined,
+  observations: db.observations || undefined,
+  lastInteraction: db.last_interaction || undefined,
+  birthDate: db.birth_date || undefined,
   status: db.status as Contact['status'],
   stage: db.stage,
   source: db.source as Contact['source'] || undefined,
-  birthDate: db.birth_date || undefined,
-  lastInteraction: db.last_interaction || undefined,
+  notes: db.notes || '',
   lastPurchaseDate: db.last_purchase_date || undefined,
   totalValue: db.total_value || 0,
   createdAt: db.created_at,
   updatedAt: db.updated_at,
+  // backward compat
+  role: db.role || '',
+  companyId: db.client_company_id || '',
 });
 
 /**
@@ -165,6 +184,12 @@ const transformContactToDb = (contact: Partial<Contact>): Partial<DbContact> => 
   if (contact.lastInteraction !== undefined) db.last_interaction = contact.lastInteraction || null;
   if (contact.lastPurchaseDate !== undefined) db.last_purchase_date = contact.lastPurchaseDate || null;
   if (contact.totalValue !== undefined) db.total_value = contact.totalValue;
+  if (contact.treatmentInterest !== undefined) db.treatment_interest = contact.treatmentInterest || null;
+  if (contact.firstTime !== undefined) db.first_time = contact.firstTime;
+  if (contact.previousProcedure !== undefined) db.previous_procedure = contact.previousProcedure;
+  if (contact.leadOrigin !== undefined) db.lead_origin = contact.leadOrigin || null;
+  if (contact.conversationSummary !== undefined) db.conversation_summary = contact.conversationSummary || null;
+  if (contact.observations !== undefined) db.observations = contact.observations || null;
 
   return db;
 };
@@ -403,9 +428,14 @@ export const contactsService = {
         name: contact.name,
         email: sanitizeText(contact.email),
         phone: sanitizeText(phoneE164),
-        role: sanitizeText(contact.role),
         client_company_id: sanitizeUUID(contact.clientCompanyId || contact.companyId),
         avatar: sanitizeText(contact.avatar),
+        treatment_interest: sanitizeText(contact.treatmentInterest),
+        first_time: contact.firstTime ?? false,
+        previous_procedure: contact.previousProcedure ?? false,
+        lead_origin: sanitizeText(contact.leadOrigin),
+        conversation_summary: sanitizeText(contact.conversationSummary),
+        observations: sanitizeText(contact.observations),
         notes: sanitizeText(contact.notes),
         status: contact.status || 'ACTIVE',
         stage: contact.stage || 'LEAD',

@@ -27,6 +27,12 @@ type ParsedRow = {
   lastName?: string;
   email?: string;
   phone?: string;
+  treatmentInterest?: string;
+  firstTime?: string;
+  previousProcedure?: string;
+  leadOrigin?: string;
+  conversationSummary?: string;
+  observations?: string;
   role?: string;
   company?: string;
   status?: string;
@@ -40,6 +46,12 @@ const HEADER_SYNONYMS: Record<keyof ParsedRow, string[]> = {
   lastName: ['last name', 'lastname', 'sobrenome'],
   email: ['email', 'e-mail', 'e-mail address', 'mail'],
   phone: ['phone', 'telefone', 'celular', 'whatsapp', 'fone'],
+  treatmentInterest: ['treatment_interest', 'tratamento', 'interesse', 'tratamento de interesse'],
+  firstTime: ['first_time', 'primeira_vez', 'primeira vez', 'primeira-vez'],
+  previousProcedure: ['previous_procedure', 'ja_fez', 'já fez', 'procedimento anterior'],
+  leadOrigin: ['lead_origin', 'origem', 'origem do lead'],
+  conversationSummary: ['conversation_summary', 'resumo_conversa', 'resumo da conversa'],
+  observations: ['observations', 'observacoes', 'observações', 'obs'],
   role: ['role', 'cargo', 'titulo', 'title', 'funcao', 'funçao', 'funcao/cargo'],
   company: ['company', 'empresa', 'conta', 'account', 'organization', 'organizacao', 'organização'],
   status: ['status'],
@@ -66,6 +78,12 @@ function buildHeaderIndex(headers: string[]) {
     lastName: find(HEADER_SYNONYMS.lastName),
     email: find(HEADER_SYNONYMS.email),
     phone: find(HEADER_SYNONYMS.phone),
+    treatmentInterest: find(HEADER_SYNONYMS.treatmentInterest),
+    firstTime: find(HEADER_SYNONYMS.firstTime),
+    previousProcedure: find(HEADER_SYNONYMS.previousProcedure),
+    leadOrigin: find(HEADER_SYNONYMS.leadOrigin),
+    conversationSummary: find(HEADER_SYNONYMS.conversationSummary),
+    observations: find(HEADER_SYNONYMS.observations),
     role: find(HEADER_SYNONYMS.role),
     company: find(HEADER_SYNONYMS.company),
     status: find(HEADER_SYNONYMS.status),
@@ -164,6 +182,12 @@ export async function POST(req: Request) {
           name: computedName,
           email,
           phone,
+          treatmentInterest: getCell(r, mapping.treatmentInterest),
+          firstTime: getCell(r, mapping.firstTime),
+          previousProcedure: getCell(r, mapping.previousProcedure),
+          leadOrigin: getCell(r, mapping.leadOrigin),
+          conversationSummary: getCell(r, mapping.conversationSummary),
+          observations: getCell(r, mapping.observations),
           role: getCell(r, mapping.role),
           company: getCell(r, mapping.company),
           status: normalizeStatus(getCell(r, mapping.status)),
@@ -290,7 +314,12 @@ export async function POST(req: Request) {
         name: p.data.name || '',
         email: p.data.email || null,
         phone: phoneE164 || null,
-        role: p.data.role || null,
+        treatment_interest: p.data.treatmentInterest || null,
+        first_time: p.data.firstTime === 'true' || p.data.firstTime === '1',
+        previous_procedure: p.data.previousProcedure === 'true' || p.data.previousProcedure === '1',
+        lead_origin: p.data.leadOrigin || null,
+        conversation_summary: p.data.conversationSummary || null,
+        observations: p.data.observations || null,
         client_company_id: companyId || null,
         notes: p.data.notes || null,
         status: p.data.status || 'ACTIVE',

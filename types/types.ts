@@ -154,23 +154,79 @@ export interface Contact {
   organizationId?: OrganizationId; // Tenant FK (for RLS) - optional during migration
   clientCompanyId?: ClientCompanyId; // CRM company this contact belongs to
   name: string;
-  role?: string;
   email: string;
   phone: string;
   avatar?: string;
+  treatmentInterest?: 'Botox' | 'Preenchimento labial' | 'Bioestimulador' | 'Fios de sustentação' | 'Skinbooster' | 'Outro';
+  firstTime?: boolean;
+  previousProcedure?: boolean;
+  leadOrigin?: 'WhatsApp' | 'Instagram' | 'Indicação' | 'Google' | 'Outro';
+  conversationSummary?: string;
+  observations?: string;
   lastInteraction?: string;
-  birthDate?: string; // New field for Agentic AI tasks
+  birthDate?: string;
   status: 'ACTIVE' | 'INACTIVE' | 'CHURNED';
-  stage: string; // ID do LifecycleStage (antes era ContactStage enum)
-  source?: 'WEBSITE' | 'LINKEDIN' | 'REFERRAL' | 'MANUAL'; // Origem do contato
-  notes?: string; // Anotações gerais
+  stage: string;
+  source?: 'WEBSITE' | 'LINKEDIN' | 'REFERRAL' | 'MANUAL';
+  notes?: string;
   lastPurchaseDate?: string;
-  totalValue?: number; // LTV
+  totalValue?: number;
   createdAt: string;
-  updatedAt?: string; // Última modificação do registro
+  updatedAt?: string;
 
-  // @deprecated - Use clientCompanyId instead
-  companyId?: string;
+  // legacy fields (não exibidos no Harmony)
+  role?: string;
+  companyId?: string; // @deprecated - Use clientCompanyId instead
+}
+
+export interface Appointment {
+  id: string;
+  organizationId?: OrganizationId;
+  contactId?: string;
+  date: string;
+  startTime: string;
+  durationMinutes: number;
+  status: 'Disponível' | 'Reservado' | 'Confirmado' | 'Bloqueado';
+  treatment?: string;
+  firstTime?: boolean;
+  previousProcedure?: boolean;
+  leadOrigin?: 'WhatsApp' | 'Instagram' | 'Indicação' | 'Google' | 'Outro';
+  conversationSummary?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
+}
+
+export interface ProcedureHistory {
+  id: string;
+  organizationId?: OrganizationId;
+  contactId: string;
+  date: string;
+  treatment: string;
+  product?: string;
+  quantity?: number;
+  value?: number;
+  paymentMethod: 'Pix' | 'Dinheiro' | 'Débito' | 'Crédito';
+  result: 'Ótimo' | 'Bom' | 'Regular' | 'Requer ajuste';
+  followUpDate?: string;
+  doctorNotes?: string;
+  createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
+}
+
+export interface ContactPhoto {
+  id: string;
+  organizationId?: OrganizationId;
+  contactId: string;
+  photoUrl: string;
+  category: 'antes' | 'depois' | 'ambos';
+  takenAt?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+  uploadedBy?: string;
 }
 
 // ITEM 3: Produtos e Serviços
@@ -183,6 +239,9 @@ export interface Product {
   sku?: string;
   /** Se está ativo no catálogo (itens inativos não devem aparecer no dropdown do deal). */
   active?: boolean;
+  basePrice?: number;
+  procedureDurationMinutes?: number;
+  effectDurationMonths?: number;
 }
 
 export interface DealItem {
