@@ -32,7 +32,7 @@ const transformAppointment = (db: DbAppointment): Appointment => ({
   treatment: db.treatment || undefined,
   firstTime: db.first_time ?? false,
   previousProcedure: db.previous_procedure ?? false,
-  leadOrigin: db.lead_origin || undefined,
+  leadOrigin: (db.lead_origin as any) || undefined,
   conversationSummary: db.conversation_summary || undefined,
   notes: db.notes || undefined,
   createdAt: db.created_at,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { contactsService } from '@/lib/supabase/contacts';
-import { appointmentService } from '@/lib/supabase';
+import { appointmentService } from '@/lib/supabase/appointments';
 import { normalizePhoneE164 } from '@/lib/phone';
 
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'default-secret-for-dev';
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       contactId = existingContact.id;
       // Update contact with new info if needed
       await contactsService.update(existingContact.id, {
-        treatmentInterest: body.tratamento,
+        treatmentInterest: body.tratamento as any,
         firstTime: body.primeira_vez,
         leadOrigin: body.origem as any,
         conversationSummary: body.resumo_conversa,
@@ -57,8 +57,9 @@ export async function POST(request: NextRequest) {
       // Create new contact
       const { data: newContact, error: createError } = await contactsService.create({
         name: body.contact_name,
+        email: '',
         phone: phoneE164,
-        treatmentInterest: body.tratamento,
+        treatmentInterest: body.tratamento as any,
         firstTime: body.primeira_vez,
         leadOrigin: body.origem as any,
         conversationSummary: body.resumo_conversa,

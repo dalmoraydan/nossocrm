@@ -165,7 +165,6 @@ export const useContactsController = () => {
     leadOrigin: '',
     conversationSummary: '',
     observations: '',
-    companyName: '',
   });
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
 
@@ -192,7 +191,6 @@ export const useContactsController = () => {
       leadOrigin: '',
       conversationSummary: '',
       observations: '',
-      companyName: '',
     });
     setIsModalOpen(true);
   };
@@ -210,7 +208,6 @@ export const useContactsController = () => {
       leadOrigin: contact.leadOrigin || '',
       conversationSummary: contact.conversationSummary || '',
       observations: contact.observations || '',
-      companyName: company?.name || '',
     });
     setIsModalOpen(true);
   };
@@ -403,33 +400,8 @@ export const useContactsController = () => {
       (addToast || showToast)('Criando contato...', 'info');
     }
 
-    // Find or create company
+    // No company logic for Harmony clinic
     let companyId: string | undefined;
-    const companyName = (formData.companyName || '').trim();
-    const companyNameKey = companyName.toLowerCase();
-
-    if (companyName) {
-      const existingCompany = companies.find(c => (c.name || '').toLowerCase() === companyNameKey);
-
-      if (existingCompany) {
-        companyId = existingCompany.id;
-      } else {
-        // Create new company and wait for result
-        const tCompany0 = Date.now();
-        const newCompany = await new Promise<{ id: string } | null>(resolve => {
-          createCompanyMutation.mutate(
-            { name: companyName },
-            { onSuccess: resolve, onError: () => resolve(null) }
-          );
-        });
-        if (newCompany) {
-          companyId = newCompany.id;
-        }
-      }
-    } else if (editingContact) {
-      // Explicitly unlink company when clearing the field in Edit
-      companyId = '';
-    }
 
     if (editingContact) {
       updateContactMutation.mutate(
@@ -439,12 +411,12 @@ export const useContactsController = () => {
             name: formData.name,
             email: formData.email,
             phone: normalizedPhone,
-            treatmentInterest: formData.treatmentInterest || null,
+            treatmentInterest: (formData.treatmentInterest as any) || undefined,
             firstTime: formData.firstTime,
             previousProcedure: formData.previousProcedure,
-            leadOrigin: formData.leadOrigin || null,
-            conversationSummary: formData.conversationSummary || null,
-            observations: formData.observations || null,
+            leadOrigin: (formData.leadOrigin as any) || undefined,
+            conversationSummary: formData.conversationSummary || undefined,
+            observations: formData.observations || undefined,
             companyId: companyId,
           },
         },
@@ -462,12 +434,12 @@ export const useContactsController = () => {
           name: formData.name,
           email: formData.email,
           phone: normalizedPhone,
-          treatmentInterest: formData.treatmentInterest || null,
+          treatmentInterest: (formData.treatmentInterest as any) || undefined,
           firstTime: formData.firstTime,
           previousProcedure: formData.previousProcedure,
-          leadOrigin: formData.leadOrigin || null,
-          conversationSummary: formData.conversationSummary || null,
-          observations: formData.observations || null,
+          leadOrigin: (formData.leadOrigin as any) || undefined,
+          conversationSummary: formData.conversationSummary || undefined,
+          observations: formData.observations || undefined,
           companyId: companyId || '',
           status: 'ACTIVE',
           stage: ContactStage.LEAD,
@@ -493,32 +465,10 @@ export const useContactsController = () => {
     let createdCount = 0;
 
     for (const fake of fakeContacts) {
-      let companyId: string | undefined;
-
-      if (fake.companyName) {
-        const existingCompany = companies.find(
-          c => (c.name || '').toLowerCase() === (fake.companyName || '').toLowerCase()
-        );
-
-        if (existingCompany) {
-          companyId = existingCompany.id;
-        } else {
-          const newCompany = await new Promise<{ id: string } | null>(resolve => {
-            createCompanyMutation.mutate(
-              { name: fake.companyName },
-              { onSuccess: resolve, onError: () => resolve(null) }
-            );
-          });
-          if (newCompany) companyId = newCompany.id;
-        }
-      }
-
       await createContactMutation.mutateAsync({
         name: fake.name,
         email: fake.email,
         phone: normalizePhoneE164(fake.phone),
-        role: fake.role,
-        companyId: companyId || '',
         status: 'ACTIVE',
         stage: ContactStage.LEAD,
         totalValue: 0,

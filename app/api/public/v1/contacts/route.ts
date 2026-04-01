@@ -151,7 +151,6 @@ export async function POST(request: Request) {
   const email = normalizeEmail(parsed.data.email);
   const phone = normalizePhone(parsed.data.phone);
   const name = normalizeText(parsed.data.name);
-  const companyName = normalizeText(parsed.data.company_name);
 
   if (!email && !phone) {
     return NextResponse.json({ error: 'Provide email or phone', code: 'VALIDATION_ERROR' }, { status: 422 });
@@ -166,14 +165,7 @@ export async function POST(request: Request) {
   const lastInteraction = toIsoTimestamp(parsed.data.last_interaction);
   if (lastInteraction === '__INVALID__') return NextResponse.json({ error: 'Invalid last_interaction', code: 'VALIDATION_ERROR' }, { status: 422 });
 
-  let clientCompanyId = sanitizeUUID(parsed.data.client_company_id) || null;
-  if (!clientCompanyId && companyName) {
-    try {
-      clientCompanyId = await resolveCompanyIdFromName({ organizationId: auth.organizationId, companyName });
-    } catch (e: any) {
-      return NextResponse.json({ error: e?.message || 'Invalid company', code: 'VALIDATION_ERROR' }, { status: 422 });
-    }
-  }
+  let clientCompanyId = null;
 
   let lookup = sb
     .from('contacts')

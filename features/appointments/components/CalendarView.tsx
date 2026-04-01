@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
-import { appointmentService } from '@/lib/supabase';
+import { appointmentService } from '@/lib/supabase/appointments';
 import type { Appointment } from '@/types';
 
 const statusColors = {
@@ -39,7 +41,7 @@ export const CalendarView: React.FC = () => {
   }, [currentWeek]);
 
   const getWeekDays = () => {
-    const days = [];
+    const days: Date[] = [];
     const startOfWeek = new Date(currentWeek);
     startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
     for (let i = 0; i < 7; i++) {
