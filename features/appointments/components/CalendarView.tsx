@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronLeft, ChevronRight, Calendar, Clock, Settings } from 'lucide-react';
 import { appointmentService } from '@/lib/supabase/appointments';
 import type { Appointment } from '@/types';
 
@@ -76,7 +77,13 @@ export const CalendarView: React.FC = () => {
           <Calendar className="h-6 w-6" />
           Agenda de Consultas
         </h1>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-3">
+          <Link href="/agenda/configuracoes" className="inline-flex items-center justify-center p-2 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5">
+            <Settings className="h-4 w-4" />
+            <span className="sr-only">Configurações</span>
+          </Link>
+
           <button
             onClick={() => setCurrentWeek(new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000))}
             className="p-2 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5"
